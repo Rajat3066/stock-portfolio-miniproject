@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Stock Market Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy:  #080f1f;
+  --navy2: #0d1a30;
+  --navy3: #112040;
+  --gold:  #c9a84c;
+  --gold2: #e8cd85;
+  --gold3: #f5e6b8;
+  --text:  #d4c9a8;
+  --dim:   #7a8fa6;
+  --green: #4caf82;
+  --red:   #e05c5c;
+  --border:rgba(201,168,76,0.18);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--navy);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;
+  background-image:
+    radial-gradient(1px 1px at 15% 20%,rgba(201,168,76,0.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 72% 8%,rgba(201,168,76,0.2) 0%,transparent 100%),
+    radial-gradient(1px 1px at 40% 55%,rgba(201,168,76,0.15) 0%,transparent 100%),
+    radial-gradient(1px 1px at 85% 40%,rgba(201,168,76,0.25) 0%,transparent 100%),
+    radial-gradient(1px 1px at 5% 80%,rgba(201,168,76,0.2) 0%,transparent 100%),
+    radial-gradient(600px 400px at 50% 0%,rgba(12,30,60,0.8) 0%,transparent 70%);
+  pointer-events:none;}
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 28px 60px;}
+header{text-align:center;padding:52px 0 40px;border-bottom:1px solid var(--border);margin-bottom:44px;}
+.eyebrow{font-size:10px;letter-spacing:.35em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;}
+h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(2rem,5vw,3.4rem);color:var(--gold3);letter-spacing:.06em;line-height:1.1;}
+h1 span{color:var(--gold);}
+.subtitle{margin-top:12px;font-size:11px;color:var(--dim);letter-spacing:.12em;}
+.input-card{background:linear-gradient(135deg,var(--navy2),var(--navy3));border:1px solid var(--border);border-radius:4px;padding:36px 40px;margin-bottom:40px;position:relative;overflow:hidden;}
+.input-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.field label{display:block;font-size:9px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;}
+.field input{width:100%;background:rgba(8,15,31,0.7);border:1px solid var(--border);border-radius:3px;color:var(--gold3);font-family:'DM Mono',monospace;font-size:15px;padding:13px 18px;outline:none;transition:border-color .2s;}
+.field input:focus{border-color:var(--gold);}
+.field input::placeholder{color:var(--dim);font-size:12px;}
+.period-row{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;}
+.pill{flex:1;min-width:100px;background:rgba(8,15,31,0.6);border:1px solid var(--border);border-radius:3px;color:var(--dim);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;padding:12px 0;text-align:center;cursor:pointer;transition:all .2s;}
+.pill:hover{border-color:var(--gold);color:var(--gold2);}
+.pill.active{background:linear-gradient(135deg,rgba(201,168,76,0.15),rgba(201,168,76,0.05));border-color:var(--gold);color:var(--gold2);}
+.submit-btn{margin-top:24px;width:100%;background:linear-gradient(135deg,rgba(201,168,76,0.15),rgba(201,168,76,0.08));border:1px solid var(--gold);border-radius:3px;color:var(--gold2);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;padding:15px;cursor:pointer;transition:all .25s;}
+.submit-btn:hover{background:linear-gradient(135deg,rgba(201,168,76,0.25),rgba(201,168,76,0.12));box-shadow:0 0 24px rgba(201,168,76,0.15);}
+.submit-btn:disabled{opacity:.45;cursor:default;}
+.status{text-align:center;font-size:11px;letter-spacing:.15em;color:var(--dim);padding:12px 0;display:none;}
+.status.visible{display:block;}
+#dashboard{display:none;}
+#dashboard.visible{display:block;animation:fadeUp .5s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.section-title{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.4rem;color:var(--gold2);letter-spacing:.08em;margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+.section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+.top-banner{background:linear-gradient(135deg,rgba(76,175,130,0.1),rgba(201,168,76,0.05));border:1px solid rgba(76,175,130,0.3);border-radius:4px;padding:22px 28px;margin-bottom:30px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.top-badge{background:rgba(76,175,130,0.15);border:1px solid rgba(76,175,130,0.4);border-radius:3px;font-size:9px;letter-spacing:.25em;color:var(--green);padding:4px 10px;text-transform:uppercase;}
+.top-ticker{font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--gold3);}
+.top-return{font-size:1.1rem;color:var(--green);font-weight:500;}
+.summary-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:36px;}
+.sum-card{background:var(--navy2);border:1px solid var(--border);border-radius:4px;padding:18px 22px;text-align:center;}
+.sum-card label{font-size:9px;letter-spacing:.25em;color:var(--dim);text-transform:uppercase;display:block;margin-bottom:8px;}
+.sum-card .big{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--gold3);}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:40px;}
+.card{background:linear-gradient(160deg,var(--navy2),var(--navy3));border:1px solid var(--border);border-radius:4px;padding:24px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;}
+.card:hover{border-color:rgba(201,168,76,0.4);transform:translateY(-2px);}
+.card.rank-1{border-color:rgba(201,168,76,0.5);}
+.card.rank-1::after{content:'BEST PICK';position:absolute;top:10px;right:12px;font-size:8px;letter-spacing:.2em;color:var(--gold);background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:2px;padding:2px 8px;}
+.card-header{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.ticker-badge{background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:3px;padding:4px 10px;font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--gold2);}
+.risk-tag{font-size:9px;letter-spacing:.2em;text-transform:uppercase;padding:3px 8px;border-radius:2px;}
+.risk-Low{background:rgba(76,175,130,0.12);color:var(--green);border:1px solid rgba(76,175,130,0.25);}
+.risk-Medium{background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.25);}
+.risk-High{background:rgba(224,92,92,0.12);color:var(--red);border:1px solid rgba(224,92,92,0.25);}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.metric label{font-size:8px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:4px;}
+.metric .val{font-size:14px;color:var(--text);}
+.metric .val.up{color:var(--green);}
+.metric .val.down{color:var(--red);}
+.metric .val.gold{color:var(--gold2);}
+.sentiment-bar-wrap{margin-top:14px;border-top:1px solid var(--border);padding-top:12px;}
+.sentiment-bar-label{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;}
+.sentiment-bar-bg{height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;}
+.sentiment-bar-fill{height:100%;border-radius:3px;transition:width .4s;}
+.inv-result{margin-top:16px;border-top:1px solid var(--border);padding-top:14px;}
+.inv-result label{font-size:8px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:5px;}
+.inv-row{display:flex;justify-content:space-between;align-items:baseline;}
+.inv-final{font-size:1.05rem;color:var(--gold3);}
+.spark{margin-top:14px;height:40px;width:100%;display:block;}
+.model-info{border-top:1px solid var(--border);margin-top:40px;padding-top:24px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+.model-info-label{font-size:9px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;margin-right:4px;}
+.model-chip{font-size:9px;letter-spacing:.2em;color:var(--dim);background:rgba(201,168,76,0.05);border:1px solid var(--border);border-radius:2px;padding:5px 12px;text-transform:uppercase;}
+.cache-note{text-align:center;font-size:10px;color:var(--dim);letter-spacing:.12em;margin-top:18px;}
+@media(max-width:600px){.summary-row{grid-template-columns:1fr;}.input-card{padding:24px 20px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">AI-Powered Analysis</div>
+  <h1>Stock Market<br/><span>Portfolio</span> Creation</h1>
+  <div class="subtitle">BiLSTM · XGBoost · LightGBM · GRU · Transformer · CAGR</div>
+</header>
+
+<div class="input-card">
+  <div class="field">
+    <label>Investment Amount (&#8377; / $)</label>
+    <input type="number" id="amount" placeholder="e.g. 100000" min="1"/>
+  </div>
+  <div class="period-row">
+    <button class="pill active" data-period="3month">3 Months</button>
+    <button class="pill"        data-period="1year" >1 Year</button>
+    <button class="pill"        data-period="5year" >5 Years</button>
+  </div>
+  <button class="submit-btn" id="submitBtn" onclick="generate()">GENERATE PORTFOLIO</button>
+</div>
+
+<div class="status" id="status">Loading predictions from cache&hellip;</div>
+
+<div id="dashboard">
+  <div class="section-title" id="dashTitle">Portfolio Recommendations</div>
+  <div class="top-banner" id="topBanner"></div>
+  <div class="summary-row" id="summaryRow"></div>
+  <div class="section-title">Stock Analysis</div>
+  <div class="cards" id="cardsGrid"></div>
+  <div class="model-info" id="modelInfo"></div>
+  <div class="cache-note" id="cacheNote"></div>
+</div>
+
+</div>
+<script>
+var selectedPeriod = '3month';
+
+document.querySelectorAll('.pill').forEach(function(p){
+  p.addEventListener('click', function(){
+    document.querySelectorAll('.pill').forEach(function(x){x.classList.remove('active');});
+    p.classList.add('active');
+    selectedPeriod = p.dataset.period;
+  });
+});
+
+async function generate(){
+  var amount = parseFloat(document.getElementById('amount').value);
+  if(!amount || amount <= 0){ alert('Please enter a valid investment amount.'); return; }
+
+  var btn = document.getElementById('submitBtn');
+  var statusEl = document.getElementById('status');
+  var dash = document.getElementById('dashboard');
+
+  btn.disabled = true;
+  statusEl.textContent = 'Loading predictions from cache\u2026';
+  statusEl.classList.add('visible');
+  dash.classList.remove('visible');
+  dash.style.display = 'none';
+
+  var data = null;
+  try {
+    var r = await fetch('predictions_cache.json?t=' + Date.now());
+    if(r.ok) data = await r.json();
+  } catch(e){}
+
+  statusEl.classList.remove('visible');
+  btn.disabled = false;
+
+  if(!data){
+    statusEl.textContent = 'Cache not found. Run scheduler.py first to train the models.';
+    statusEl.classList.add('visible');
+    return;
+  }
+
+  renderDashboard(amount, selectedPeriod, data);
+  dash.style.display = 'block';
+  dash.classList.add('visible');
+  setTimeout(function(){ dash.scrollIntoView({behavior:'smooth',block:'start'}); }, 100);
+}
+
+function renderDashboard(amount, period, data){
+  var TICKERS = data.tickers || ['AAPL','GOOGL','MSFT','TSLA','AMZN','NVDA'];
+  var trainedAt = data.trained_at ? new Date(data.trained_at).toLocaleString() : 'Unknown';
+  var stocks = [];
+
+  if(period === '3month'){
+    var d = data['3month'] || {};
+    TICKERS.forEach(function(t){
+      var s = d[t] || {};
+      var cumRet = (s.cumulative_return_pct || 0) / 100;
+      var profit = amount * cumRet;
+      stocks.push({
+        ticker: t,
+        returnPct: s.cumulative_return_pct || 0,
+        annPct: s.annualized_pct || 0,
+        sharpe: s.sharpe || 0,
+        volPct: s.volatility_pct || 0,
+        risk: s.risk || 'Medium',
+        price: s.current_price || 0,
+        profit: Math.round(profit*100)/100,
+        final: Math.round((amount+profit)*100)/100,
+        score: s.score || 0,
+        daily: s.daily_returns || [],
+        extra: 'sharpe',
+        sentiment: null
+      });
+    });
+    stocks.sort(function(a,b){return b.score-a.score;});
+
+  } else if(period === '1year'){
+    var d1 = data['1year'] || {};
+    TICKERS.forEach(function(t){
+      var s = d1[t] || {};
+      var cumRet = (s.cumulative_return_pct || 0) / 100;
+      var profit = amount * cumRet;
+      stocks.push({
+        ticker: t,
+        returnPct: s.cumulative_return_pct || 0,
+        annPct: s.annualized_pct || 0,
+        sharpe: s.sharpe || 0,
+        volPct: s.volatility_pct || 0,
+        risk: s.risk || 'Medium',
+        price: s.current_price || 0,
+        profit: Math.round(profit*100)/100,
+        final: Math.round((amount+profit)*100)/100,
+        score: s.score || 0,
+        daily: [],
+        extra: 'sentiment',
+        sentiment: s.sentiment || 0
+      });
+    });
+    stocks.sort(function(a,b){return b.score-a.score;});
+
+  } else if(period === '5year'){
+    var d5 = data['5year'] || {};
+    TICKERS.forEach(function(t){
+      var s = d5[t] || {};
+      var ret5 = (s.total_return_pct || 0) / 100;
+      var profit = amount * ret5;
+      var ann = s.annual_return_pct || 0;
+      stocks.push({
+        ticker: t,
+        returnPct: s.total_return_pct || 0,
+        annPct: ann,
+        cagr: s.cagr_pct || 0,
+        dlPred: s.dl_pred_pct || 0,
+        price: s.current_price || 0,
+        futurePrice: s.future_price || 0,
+        risk: Math.abs(ann)>25?'High':Math.abs(ann)>12?'Medium':'Low',
+        profit: Math.round(profit*100)/100,
+        final: Math.round((amount+profit)*100)/100,
+        score: s.total_return_pct || 0,
+        daily: [],
+        extra: 'cagr',
+        sentiment: null
+      });
+    });
+    stocks.sort(function(a,b){return b.score-a.score;});
+  }
+
+  if(stocks.length === 0){
+    document.getElementById('cardsGrid').innerHTML =
+      '<div style="text-align:center;padding:60px 20px;color:var(--dim);">' +
+      '<div style="font-size:2rem;margin-bottom:16px;">⚠️</div>' +
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1.4rem;color:var(--gold2);margin-bottom:10px;">No data yet for this period</div>' +
+      '<div style="font-size:11px;letter-spacing:.1em;line-height:1.8;">Run scheduler.py and wait for training to finish.<br/>Then refresh this page.</div>' +
+      '</div>';
+    document.getElementById('topBanner').innerHTML = '';
+    document.getElementById('summaryRow').innerHTML = '';
+    document.getElementById('modelInfo').innerHTML = '';
+    document.getElementById('dashTitle').textContent = (period==='1year'?'1-Year':'') + ' Portfolio';
+    document.getElementById('cacheNote').textContent = '';
+    return;
+  }
+
+  var top = stocks[0];
+  var avgReturn = stocks.reduce(function(s,x){return s+x.returnPct;},0) / stocks.length;
+  var periodLabel = period === '3month' ? '3-Month' : (period === '1year' ? '1-Year' : '5-Year');
+
+  document.getElementById('dashTitle').textContent = periodLabel + ' Portfolio Recommendations';
+
+  document.getElementById('topBanner').innerHTML =
+    '<div>' +
+      '<div class="top-badge">Best Pick</div>' +
+      '<div class="top-ticker">' + top.ticker + '</div>' +
+    '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:4px;">' +
+      '<div class="top-return">' + (top.returnPct>=0?'+':'') + top.returnPct.toFixed(2) + '%</div>' +
+      '<div style="font-size:11px;color:var(--dim);">Projected Return</div>' +
+    '</div>' +
+    '<div style="margin-left:auto;text-align:right;">' +
+      '<div style="font-size:11px;color:var(--dim);">Invest ' + fmt(amount) + ' &rarr; get</div>' +
+      '<div style="font-size:1rem;color:var(--gold3);">' + fmt(top.final) + '</div>' +
+      '<div style="font-size:11px;color:' + (top.profit>=0?'var(--green)':'var(--red)') + ';">' +
+        (top.profit>=0?'+':'') + fmt(top.profit) + ' profit' +
+      '</div>' +
+    '</div>';
+
+  document.getElementById('summaryRow').innerHTML =
+    '<div class="sum-card"><label>Investment</label><div class="big">' + fmt(amount) + '</div></div>' +
+    '<div class="sum-card"><label>Avg Projected Return</label><div class="big" style="color:' +
+      (avgReturn>=0?'var(--green)':'var(--red)') + '">' +
+      (avgReturn>=0?'+':'') + avgReturn.toFixed(1) + '%</div></div>' +
+    '<div class="sum-card"><label>Best Stock Est. Value</label><div class="big">' + fmt(top.final) + '</div></div>';
+
+  var cardsEl = document.getElementById('cardsGrid');
+  cardsEl.innerHTML = '';
+
+  stocks.forEach(function(s, i){
+    var div = document.createElement('div');
+    div.className = 'card' + (i===0?' rank-1':'');
+
+    var extraMetrics = '';
+    if(s.extra === 'cagr'){
+      extraMetrics =
+        '<div class="metric"><label>CAGR</label><div class="val gold">' + s.cagr.toFixed(1) + '%</div></div>' +
+        '<div class="metric"><label>5Y Price</label><div class="val">$' + s.futurePrice.toFixed(2) + '</div></div>';
+    } else if(s.extra === 'sentiment'){
+      extraMetrics =
+        '<div class="metric"><label>Sharpe Ratio</label><div class="val gold">' + s.sharpe.toFixed(2) + '</div></div>' +
+        '<div class="metric"><label>Volatility</label><div class="val">' + s.volPct.toFixed(1) + '%</div></div>';
+    } else {
+      extraMetrics =
+        '<div class="metric"><label>Sharpe Ratio</label><div class="val gold">' + s.sharpe.toFixed(2) + '</div></div>' +
+        '<div class="metric"><label>Volatility</label><div class="val">' + s.volPct.toFixed(1) + '%</div></div>';
+    }
+
+    // Sentiment bar (1-year only)
+    var sentimentHtml = '';
+    if(s.extra === 'sentiment' && s.sentiment !== null){
+      var sent = s.sentiment; // -1 to 1
+      var sentPct = Math.round((sent + 1) / 2 * 100); // convert to 0–100
+      var sentColor = sent > 0.1 ? 'var(--green)' : sent < -0.1 ? 'var(--red)' : 'var(--gold)';
+      var sentLabel = sent > 0.1 ? 'Positive' : sent < -0.1 ? 'Negative' : 'Neutral';
+      sentimentHtml =
+        '<div class="sentiment-bar-wrap">' +
+          '<div class="sentiment-bar-label">News Sentiment — ' + sentLabel + ' (' + sent.toFixed(3) + ')</div>' +
+          '<div class="sentiment-bar-bg">' +
+            '<div class="sentiment-bar-fill" style="width:' + sentPct + '%;background:' + sentColor + ';"></div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    var profColor = s.profit>=0?'var(--green)':'var(--red)';
+    var profSign  = s.profit>=0?'+':'';
+    var retClass  = s.returnPct>=0?'up':'down';
+    var annClass  = s.annPct>=0?'up':'down';
+    var periodTag = period==='5year'?'5Y':(period==='1year'?'1Y':'90d');
+
+    div.innerHTML =
+      '<div class="card-header">' +
+        '<div class="ticker-badge">' + s.ticker + '</div>' +
+        '<div class="risk-tag risk-' + s.risk + '">' + s.risk + ' Risk</div>' +
+        '<div style="margin-left:auto;font-size:10px;color:var(--dim)">Rank #' + (i+1) + '</div>' +
+      '</div>' +
+      '<div class="metrics">' +
+        '<div class="metric"><label>' + periodTag + ' Return</label>' +
+          '<div class="val ' + retClass + '">' + (s.returnPct>=0?'+':'') + s.returnPct.toFixed(2) + '%</div></div>' +
+        '<div class="metric"><label>Annual Return</label>' +
+          '<div class="val ' + annClass + '">' + (s.annPct>=0?'+':'') + s.annPct.toFixed(1) + '%</div></div>' +
+        extraMetrics +
+        '<div class="metric"><label>Current Price</label>' +
+          '<div class="val">$' + s.price.toFixed(2) + '</div></div>' +
+      '</div>' +
+      sentimentHtml +
+      '<div class="inv-result">' +
+        '<label>Based on ' + fmt(amount) + ' investment</label>' +
+        '<div class="inv-row">' +
+          '<div class="inv-final">' + fmt(s.final) + '</div>' +
+          '<div style="font-size:12px;color:' + profColor + '">' + profSign + fmt(s.profit) + '</div>' +
+        '</div>' +
+      '</div>' +
+      (s.daily && s.daily.length ? '<canvas class="spark" id="spark-' + s.ticker + '"></canvas>' : '');
+
+    cardsEl.appendChild(div);
+
+    if(s.daily && s.daily.length){
+      drawSparkline('spark-' + s.ticker, s.daily, s.returnPct >= 0);
+    }
+  });
+
+  var models = period === '3month'
+    ? ['BiLSTM', 'XGBoost', 'LightGBM', 'Ridge Meta-Ensemble']
+    : period === '1year'
+    ? ['GRU', 'Sentiment Analysis', 'Finnhub News', 'RobustScaler']
+    : ['Transformer', 'Multi-Head Attention', 'CAGR Blend'];
+
+  document.getElementById('modelInfo').innerHTML =
+    '<span class="model-info-label">Models:</span>' +
+    models.map(function(m){ return '<div class="model-chip">' + m + '</div>'; }).join('');
+
+  document.getElementById('cacheNote').textContent =
+    'Models last trained: ' + trainedAt + '  \u2022  Re-trains automatically every midnight';
+}
+
+function drawSparkline(id, daily, positive){
+  requestAnimationFrame(function(){
+    var canvas = document.getElementById(id);
+    if(!canvas) return;
+    var ctx = canvas.getContext('2d');
+    canvas.width  = canvas.offsetWidth  || 280;
+    canvas.height = canvas.offsetHeight || 40;
+    var cum = [1];
+    daily.forEach(function(r){ cum.push(cum[cum.length-1]*(1+r)); });
+    var min = Math.min.apply(null,cum), max = Math.max.apply(null,cum);
+    var range = max-min || 0.001;
+    var w = canvas.width, h = canvas.height, pad = 4;
+    var pts = cum.map(function(v,i){return {
+      x: pad + (i/(cum.length-1))*(w-2*pad),
+      y: h-pad - ((v-min)/range)*(h-2*pad)
+    };});
+    var grad = ctx.createLinearGradient(0,0,0,h);
+    grad.addColorStop(0, positive?'rgba(76,175,130,0.35)':'rgba(224,92,92,0.35)');
+    grad.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x,pts[0].y);
+    for(var i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+    ctx.lineTo(pts[pts.length-1].x,h);
+    ctx.lineTo(pts[0].x,h);
+    ctx.closePath();
+    ctx.fillStyle = grad; ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x,pts[0].y);
+    for(var j=1;j<pts.length;j++) ctx.lineTo(pts[j].x,pts[j].y);
+    ctx.strokeStyle = positive?'#4caf82':'#e05c5c';
+    ctx.lineWidth = 1.5; ctx.stroke();
+  });
+}
+
+function fmt(n){
+  n = parseFloat(n);
+  if(Math.abs(n) >= 1000) return '\u20b9' + n.toLocaleString('en-IN',{maximumFractionDigits:0});
+  return '\u20b9' + n.toFixed(2);
+}
+</script>
+</body>
+</html>
